@@ -29,6 +29,16 @@ The UI obtains a signed demo session from the backend rather than trusting a rol
 
 For escalation, as a parent say `I want to talk to my child's teacher`, then confirm with `yes`. The confirmation is only reported after the mock support service succeeds.
 
+## Security and safety guardrails
+
+- A user's role comes only from the signed login token and cannot be changed by chat text or prompt instructions.
+- Conversation state is isolated by authenticated account and session ID, preventing role or context transfer between users.
+- Each authenticated session keeps a bounded recent dialogue plus structured attendance context, so safe follow-ups can reuse the last student and date without trusting model-generated memory.
+- Students can read only their own attendance, parents only linked children, and teachers only students in assigned classes. Principals can review school records but cannot perform teacher-only attendance edits.
+- Prompt-injection, system-prompt extraction, credential/API-key extraction, and fake-role requests are rejected before Ollama is called.
+- Ollama receives the authenticated role and approved facts only. It never receives raw credentials and cannot directly read or mutate CSV data.
+- Every read and action is authorized again beside the backend data operation; model output alone never grants access or performs an action.
+
 ## Single-page portal and CSV data
 
 The root page (`/`) is a single shared portal: every authenticated Student, Parent, Teacher, and Principal can use the visible XYZ AI chatbot. The attendance workspace is conditionally rendered on that same page for Teacher and Principal accounts only, and is also restricted at the API layer.
